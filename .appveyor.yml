@@ -4,6 +4,7 @@ os: Visual Studio 2015
 init:
   - git config --global core.autocrlf input
   - cmd: set PATH=C:\Program Files (x86)\CMake\bin\;%PATH%
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 clone_folder: C:\projects\openmeeg
 
@@ -25,21 +26,25 @@ environment:
     deploy_folder:
       secure: Nk+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
   matrix:
-    # - lapack: MKL
+    - lapack: MKL
+      omp: ON
+      vtk: OFF
+      python: OFF
+      pack: ON
     - lapack: OpenBLAS
       omp: ON
       vtk: OFF
       python: OFF
       pack: ON
-    # - lapack: OpenBLAS
-    #   omp: ON
-    #   vtk: ON
-    #   python: ON
-    #   pack: OFF
-    # - lapack: LAPACK
-    #   vtk: OFF
-    #   python: OFF
-    #   pack: OFF
+    - lapack: OpenBLAS
+      omp: ON
+      vtk: ON
+      python: ON
+      pack: OFF
+    - lapack: LAPACK
+      vtk: OFF
+      python: OFF
+      pack: OFF
 
 matrix:
   fast_finish: true
@@ -74,3 +79,6 @@ artifacts:
     name: OpenMEEG-Win64.exe
   - path: build\OpenMEEG-*.tar.gz
     name: OpenMEEG-Win64.tar.gz
+
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
