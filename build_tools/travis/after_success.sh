@@ -12,18 +12,12 @@ fi
 
 # only upload to forge if we are on the master branch
 if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
-    echo "Build package"
-    if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-        curl https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -o miniconda.sh -s
-    else
-        wget -q http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+    echo "Upload package"
+    if ! [ -x "$(command -v conda)" ]; then
+        git clone https://github.com/astropy/ci-helpers.git;
+        source ci-helpers/travis/setup_conda.sh;
     fi
 
-    chmod +x miniconda.sh
-    ./miniconda.sh -b -p ${HOME}/miniconda_deploy
-
-    export PATH=${HOME}/miniconda_deploy/bin:$PATH
-    conda update --yes --quiet conda
     conda create -n packageenv --yes pip python=2.7
     source activate packageenv
     conda install -y --quiet paramiko
